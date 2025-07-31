@@ -1,0 +1,203 @@
+import { products } from "../data/products.js";
+import formatCurrency from "./utils/money.js";
+import { updateCartQuantity, addToCart } from "../data/add-to-cart.js";
+
+let productsHTML = '';
+
+try{
+products.forEach((product) => {
+  productsHTML += `
+  
+    <div class="product-container">
+          <div class="product-image-container">
+            <img class="product-image"
+              src="${product.image}">
+          </div>
+
+          <div class="product-name limit-text-to-2-lines">
+            ${product.name}
+          </div>
+
+          <div class="product-rating-container">
+            <img class="product-rating-stars"
+              src="images/ratings/rating-${product.rating.stars * 10}.png">
+            <div class="product-rating-count link-primary">
+              ${product.rating.count}
+            </div>
+          </div>
+
+          <div class="product-price">
+            $${formatCurrency(product.priceCents)}
+          </div>
+
+          <div class="product-quantity-container">
+            <select class="js-quantity-selector" data-product-id="${product.id}">
+              <option selected value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+              <option value="8">8</option>
+              <option value="9">9</option>
+              <option value="10">10</option>
+            </select>
+          </div>
+
+          <div class="product-spacer"></div>
+
+          <div class="added-to-cart" data-product-id="${product.id}">
+            <img src="images/icons/checkmark.png">
+            Added
+          </div>
+
+          <button class="add-to-cart-button button-primary js-add-to-cart-button"
+          data-product-id="${product.id}">
+            Add to Cart
+          </button>
+        </div>
+  
+  `
+})
+
+document.querySelector('.js-product-grid').innerHTML = productsHTML
+
+}catch(error){
+  console.log('Failed to render the product-grid: ', error); 
+}
+
+
+try{
+document.querySelectorAll('.js-add-to-cart-button')
+.forEach((button) => {
+button.addEventListener('click', () => {
+  try{
+  const productId = button.dataset.productId
+  const quantitySelector = document.querySelector(`.js-quantity-selector[data-product-id="${productId}"]`)
+  const selectedQuantity = Number(quantitySelector.value)
+
+  addToCart(productId, selectedQuantity)
+
+  updateCartQuantity()
+
+  const addedMessage = document.querySelector(`.added-to-cart[data-product-id="${productId}"]`)
+  addedMessage.classList.add('added-visible')
+ 
+  setTimeout(() => {
+    addedMessage.classList.remove('added-visible')
+  }, 2000)
+}catch(error){
+  console.log('Failed to clicking the addToCart button: ', error); 
+}
+  
+})
+})
+
+ updateCartQuantity()
+}catch(error){
+  console.log('Failed to work js-add-to-cart-button: ', error);
+}
+
+
+
+
+document.querySelector('.search-button')
+ .addEventListener('click', () => {
+  try{
+  const searchInput = document.querySelector('.search-bar').value.toLowerCase()
+
+  const matchingProduct = products.filter(product => {
+    const nameMatched = product.name.toLowerCase().includes(searchInput)
+    const keywordMatch = product.keywords.some(keyword => 
+      keyword.toLowerCase().includes(searchInput)
+    )
+
+    return nameMatched || keywordMatch
+  })
+
+  let resultsHTML = '';
+
+  matchingProduct.forEach((product) => {
+    resultsHTML += `
+           <div class="product-container">
+          <div class="product-image-container">
+            <img class="product-image"
+              src="${product.image}">
+          </div>
+
+          <div class="product-name limit-text-to-2-lines">
+            ${product.name}
+          </div>
+
+          <div class="product-rating-container">
+            <img class="product-rating-stars"
+              src="images/ratings/rating-${product.rating.stars * 10}.png">
+            <div class="product-rating-count link-primary">
+              ${product.rating.count}
+            </div>
+          </div>
+
+          <div class="product-price">
+            $${formatCurrency(product.priceCents)}
+          </div>
+
+          <div class="product-quantity-container">
+            <select class="js-quantity-selector" data-product-id="${product.id}">
+              <option selected value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+              <option value="8">8</option>
+              <option value="9">9</option>
+              <option value="10">10</option>
+            </select>
+          </div>
+
+          <div class="product-spacer"></div>
+
+          <div class="added-to-cart" data-product-id="${product.id}">
+            <img src="images/icons/checkmark.png">
+            Added
+          </div>
+
+          <button class="add-to-cart-button button-primary js-add-to-cart-button"
+          data-product-id="${product.id}">
+            Add to Cart
+          </button>
+        </div>
+  
+    `
+  })
+
+  const resultContainer = document.querySelector('.js-product-grid')
+  resultContainer.innerHTML = resultsHTML
+
+  if(matchingProduct.length === 0){
+    resultContainer.innerHTML = '<p class="empty">No products found.</p>'
+      document.querySelector('.empty').addEventListener('click', () => {
+    window.location.href = 'index.html'
+  })
+  }}catch(error){
+    console.log('Error Handling search: ',  error);
+  }
+
+ })
+
+ document.querySelector('.search-bar').addEventListener('keypress', (event) => {
+  if(event.key === 'Enter'){
+    document.querySelector('.search-button').click()
+  }
+ })
+
+
+ 
+
+
+
+
+
+ 
